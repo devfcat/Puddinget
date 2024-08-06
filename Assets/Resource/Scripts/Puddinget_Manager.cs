@@ -14,7 +14,8 @@ using UnityEditor;
 public enum appState
 {
     Menu = 0,
-    Processing = 1
+    Processing = 1,
+    Error,
 }
 
 public enum animation_List
@@ -89,12 +90,11 @@ public class Puddinget_Manager : MonoBehaviour
 #region 구동에 필요한 변수들
 
     [Header("제어 변수")]
-    public bool toggle = true;
+    public bool isError = false;
     public bool positionLock = true; 
     public bool isDrag = false;
-    [Range(0.1f, 100f)]  public float speed_UI;
     public float minSize = 0.1f;
-    public float maxSize = 2f;
+    public float maxSize = 3f;
     public float nowSize = 1f;
     public int nowAnimation = 0;
 
@@ -122,6 +122,8 @@ public class Puddinget_Manager : MonoBehaviour
     public GameObject panel_menu;
     public GameObject panel_process;
 
+    public RectTransform screen_UI;
+
     public float screenWidth;
     public float screenHeight;
 
@@ -129,6 +131,12 @@ public class Puddinget_Manager : MonoBehaviour
 
     public void Init()
     {
+        if (screen_UI.anchoredPosition.y != screenHeight || screen_UI.anchoredPosition.x != screenWidth)
+        {
+            isError = true;
+            return;
+        }
+        
         SetState(appState.Menu);
 
         if (main_Texture != null)
@@ -163,6 +171,12 @@ public class Puddinget_Manager : MonoBehaviour
             UnityEngine.Application.Quit();
         }
 #endif
+
+        // 에러 처리
+        if (isError)
+        {
+            SetState(appState.Error);
+        }
 
         // 포지션 락을 풀고 드래그하면 이미지 위치 조정 가능
         if (isDrag && !positionLock)
@@ -235,6 +249,10 @@ public class Puddinget_Manager : MonoBehaviour
             case appState.Processing:
                 panel_menu.SetActive(false);
                 panel_process.SetActive(true);
+                break;
+            case appState.Error:
+                panel_menu.SetActive(false);
+                panel_process.SetActive(false);
                 break;
             default:
                 panel_menu.SetActive(true);
