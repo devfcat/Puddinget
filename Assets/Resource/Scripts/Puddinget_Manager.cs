@@ -7,7 +7,6 @@ using UnityEngine.Device;
 using UnityEditor;
 using System.Collections;
 using System.IO;
-using SimpleFileBrowser;
 using System.Windows.Forms;
 
 /// <summary>
