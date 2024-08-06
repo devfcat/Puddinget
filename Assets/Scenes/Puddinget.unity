@@ -2752,10 +2752,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdb79dfc2611c4942a6b06e053370663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toggle: 1
+  isError: 0
   positionLock: 1
   isDrag: 0
-  speed_UI: 0
   minSize: 0.1
   maxSize: 2
   nowSize: 1
@@ -2772,6 +2771,7 @@ MonoBehaviour:
   sizeSlider: {fileID: 45192139}
   panel_menu: {fileID: 898081526}
   panel_process: {fileID: 906783767}
+  screen_UI: {fileID: 853028649}
   screenWidth: 0
   screenHeight: 0
 --- !u!4 &1685735361
