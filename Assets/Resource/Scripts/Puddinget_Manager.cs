@@ -5,6 +5,10 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Device;
 using UnityEditor;
+using System.Collections;
+using System.IO;
+using SimpleFileBrowser;
+using System.Windows.Forms;
 
 /// <summary>
 /// 레퍼런스: https://wizemean.tistory.com/14
@@ -42,6 +46,10 @@ public class Puddinget_Manager : MonoBehaviour
         public int topHeight;
         public int bottomHeight;
     }
+    
+    OpenFileDialog OpenDialog;
+    Stream openStream = null;
+
  
     [DllImport("user32.dll")]
     public static extern IntPtr GetActiveWindow();
@@ -111,10 +119,10 @@ public class Puddinget_Manager : MonoBehaviour
     public RectTransform puddinget_RectTransform; // 푸딩젯 트랜스폼
     public GameObject puddinget_Main;
     public RectTransform puddinget_MainRectTransform;
-    public RectTransform puddinget_Preview;
 
     [Header("설정창")]
     public Slider sizeSlider;
+    public int isCustomImageUsed = 0;
 
     [Header("사용자 환경변수")]
     private Vector2 mousePos;
@@ -133,23 +141,16 @@ public class Puddinget_Manager : MonoBehaviour
     {
         if (screen_UI.anchoredPosition.y != screenHeight || screen_UI.anchoredPosition.x != screenWidth)
         {
+#if !UNITY_EDITOR
             isError = true;
             return;
+#endif
         }
         
         SetState(appState.Menu);
-
-        if (main_Texture != null)
-        {
-            puddinget_IMG.sprite = main_Texture;
-            Debug.Log("Imported Image exists");
-        }
-        else
-        {
-            puddinget_IMG.sprite = default_IMG;
-            Debug.Log("Default: Imported Image doesn't exists");
-        }
         
+        LoadIMGFileInfo();
+        SetIMG_Init();
         Load_Slider();
         Load_Scale();
         Load_Animation();
@@ -212,27 +213,118 @@ public class Puddinget_Manager : MonoBehaviour
     }
 
 #region 이미지 불러오기
+
     public void Onclick_ImportIMG()
     {
+        OpenDialog = new OpenFileDialog();
+        OpenDialog.Filter = "Custom Image (*.jpg, *.png, *.gif) | *.jpg; *.png; *.gif; | All files  (*.*)|*.*";
+        OpenDialog.FilterIndex = 1;
+        OpenDialog.Title = "Image Dialog";
 
+        url_IMG = FileOpen();
+        if (!string.IsNullOrEmpty(url_IMG))
+        {
+            SaveIMGFile();
+            SetIMG();
+        }
     }
 
-    public void LoadIMGFile()
+    public string FileOpen()
+    {
+        if (OpenDialog.ShowDialog() == DialogResult.OK)
+        {
+            if ((openStream = OpenDialog.OpenFile()) != null)
+            {
+            	openStream.Close();
+                return OpenDialog.FileName;
+            }
+        }
+        return null;
+    }
+
+    public void SetIMG()
+    {
+        byte[] byteTexture2D = System.IO.File.ReadAllBytes(url_IMG);
+        if (byteTexture2D.Length > 0)
+        {
+            int width; int height;
+            width = 4096; height = 4096;
+            Texture2D texture = new Texture2D(width, height);
+            texture.LoadImage(byteTexture2D);
+            Rect rect = new Rect(0, 0, texture.width, texture.height);
+            main_Texture = Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
+            SetIMG_custom();
+        }
+        else
+        {
+            SetIMG_default();
+        }
+    }
+
+    public void SetIMG_Init()
+    {
+        if (isCustomImageUsed != 1)
+        {
+            SetIMG_default();
+        }
+        else
+        {
+            SetIMG();
+        }
+    }
+
+    public void SetIMG_custom()
+    {
+        if (main_Texture != null)
+        {
+            puddinget_IMG.sprite = main_Texture;
+            Debug.Log("Imported Image exists");
+            PlayerPrefs.SetInt("customIMGUsed", 1);
+            isCustomImageUsed = PlayerPrefs.GetInt("customIMGUsed");
+        }
+        else
+        {
+            SetIMG_default();
+        }
+    }
+
+    public void SetIMG_default()
+    {
+        puddinget_IMG.sprite = default_IMG;
+        PlayerPrefs.SetInt("customIMGUsed", 0);
+        isCustomImageUsed = PlayerPrefs.GetInt("customIMGUsed");
+        Resizing_Reset();
+    }
+
+    public void LoadIMGFileInfo()
     {
         string url;
         try
         {
             url = PlayerPrefs.GetString("url_file");
+            isCustomImageUsed = PlayerPrefs.GetInt("customIMGUsed");
         }
         catch
         {
-            url = "null";
+            url = "";
+            isCustomImageUsed = 0;
         }
+
+        if (url != "" && url != null)
+        {
+            url_IMG = url;
+        }
+        else
+        {
+            url_IMG = "";
+        }
+        Debug.Log(url_IMG);
     }
 
     public void SaveIMGFile()
     {
-        string url = "null";
+        string url = url_IMG;
+        Debug.Log(url_IMG);
         PlayerPrefs.SetString("url_file", url);
     }
 #endregion
@@ -251,8 +343,12 @@ public class Puddinget_Manager : MonoBehaviour
                 panel_process.SetActive(true);
                 break;
             case appState.Error:
+#if UNITY_EDITOR
+                SetState(appState.Menu);
+#else
                 panel_menu.SetActive(false);
                 panel_process.SetActive(false);
+#endif
                 break;
             default:
                 panel_menu.SetActive(true);
@@ -284,7 +380,14 @@ public class Puddinget_Manager : MonoBehaviour
     {
         nowSize = sizeSlider.value;
         puddinget_MainRectTransform.localScale = new Vector2(sizeSlider.value, sizeSlider.value);
-        puddinget_Preview.localScale = new Vector2(nowSize, nowSize);
+        Save_scale();
+    }
+
+    public void Resizing_Reset()
+    {
+        nowSize = 1f;
+        puddinget_MainRectTransform.localScale = new Vector2(1f, 1f);
+        Load_Slider();
         Save_scale();
     }
 
@@ -313,7 +416,6 @@ public class Puddinget_Manager : MonoBehaviour
 
         nowSize = scale;
         puddinget_MainRectTransform.localScale = new Vector2(nowSize, nowSize);
-        puddinget_Preview.localScale = new Vector2(nowSize, nowSize);
     }
 #endregion
 
@@ -386,6 +488,7 @@ public class Puddinget_Manager : MonoBehaviour
 
     public void Onclick_MainMenu()
     {
+        Load_Slider();
         SetState(appState.Menu);
     }
 
