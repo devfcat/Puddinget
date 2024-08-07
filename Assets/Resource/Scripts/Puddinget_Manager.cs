@@ -8,6 +8,8 @@ using UnityEditor;
 using System.Collections;
 using System.IO;
 using System.Windows.Forms;
+using System.ComponentModel;
+using Unity.VisualScripting;
 
 /// <summary>
 /// 레퍼런스: https://wizemean.tistory.com/14
@@ -25,7 +27,8 @@ public enum animation_List
 {
     Default = 0,
     Rotation = 1,
-    Jumping = 2
+    Hopping = 2,
+    Poing = 3,
 }
 #endregion
 
@@ -35,6 +38,9 @@ public class Puddinget_Manager : MonoBehaviour
     {
         UnityEngine.Application.runInBackground = true;
         UnityEngine.Application.targetFrameRate = 30;
+        BringWindowToTop(hWnd);
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
+        SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
         Init();
     }
 
@@ -82,7 +88,6 @@ public class Puddinget_Manager : MonoBehaviour
         screenWidth = UnityEngine.Screen.width;
         screenHeight = UnityEngine.Screen.height;
 
-        /*
         hWnd = GetActiveWindow();
  
         MARGINS margins = new MARGINS { leftWidth = -1 };
@@ -91,27 +96,28 @@ public class Puddinget_Manager : MonoBehaviour
  
         BringWindowToTop(hWnd);
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
-        */
     }
 
 #region 구동에 필요한 변수들
 
     [Header("제어 변수")]
-    public bool isError = false;
+    [ReadOnly(true)] public bool isError = false;
     public bool positionLock = true; 
-    public bool isDrag = false;
+    [ReadOnly(true)] public bool isDrag = false;
     public float minSize = 0.1f;
     public float maxSize = 3f;
-    public float nowSize = 1f;
-    public int nowAnimation = 0;
+    [ReadOnly(true)] public float nowSize = 1f;
+    [ReadOnly(true)] public int nowAnimation = 0;
+    [ReadOnly(true)] public Vector2 position_Widget = Vector2.zero;
+    public bool isSetting = false; // 설정 또는 드래그하여 움직이는 중인가
 
 
     [Header("커스텀 이미지")]
     public Image puddinget_IMG = null;
     public Sprite default_IMG; // 기본 이미지 (푸딩젯)
-    public Sprite main_Texture; // 실제 위젯에 적용할 이미지
-    public string url_IMG; // 이미지 경로
-
+    [ReadOnly(true)] public Sprite main_Texture; // 실제 위젯에 적용할 이미지
+    [ReadOnly(true)] public string url_IMG; // 이미지 경로
+    public Animator Animator_Pudding;
 
     [Header("오브젝트")]
     public GameObject puddinget; // 푸딩젯 메인 오브젝트
@@ -121,18 +127,21 @@ public class Puddinget_Manager : MonoBehaviour
 
     [Header("설정창")]
     public Slider sizeSlider;
-    public int isCustomImageUsed = 0;
+    [ReadOnly(true)] public int isCustomImageUsed = 0;
 
     [Header("사용자 환경변수")]
-    private Vector2 mousePos;
+    [ReadOnly(true)] private Vector2 mousePos;
 
-    public GameObject panel_menu;
-    public GameObject panel_process;
+    [Header("패널")]
+    public GameObject panel_menu; // 메뉴 화면
+    public GameObject panel_process; // 기본 화면
+    public GameObject button_locker; // 자물쇠 버튼
 
+    [Header("기타")]
     public RectTransform screen_UI;
 
-    public float screenWidth;
-    public float screenHeight;
+    [ReadOnly(true)] public float screenWidth;
+    [ReadOnly(true)] public float screenHeight;
 
 #endregion
 
@@ -141,28 +150,44 @@ public class Puddinget_Manager : MonoBehaviour
         if (screen_UI.anchoredPosition.y != screenHeight || screen_UI.anchoredPosition.x != screenWidth)
         {
 #if !UNITY_EDITOR
-            isError = true;
-            return;
+            //isError = true;
+            //return;
 #endif
         }
+        isSetting = true;
         
-        SetState(appState.Menu);
-        
+        puddinget.SetActive(false);
         LoadIMGFileInfo();
         SetIMG_Init();
         Load_Slider();
         Load_Scale();
         Load_Animation();
-        puddinget_RectTransform.anchoredPosition = Vector2.zero;
+        Load_position();
+
+        SetState(appState.Menu);
+        puddinget.SetActive(true);
+    }
+
+    // 앱 강제종료 시 저장
+    void OnApplicationQuit()
+    {
+
     }
 
     public void Update()
     {
-
 #region 이미지 오버레이
-        //BringWindowToTop(hWnd);
-        //SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
-        //SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSTPARENT);
+        BringWindowToTop(hWnd);
+        SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
+        if (isSetting)
+        {
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
+        }
+        else
+        {
+            SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSTPARENT);
+        }
+        
 #endregion
 
 #if UNITY_EDITOR
@@ -182,31 +207,34 @@ public class Puddinget_Manager : MonoBehaviour
         if (isDrag && !positionLock)
         {
             mousePos = Input.mousePosition;
-            puddinget_RectTransform.anchoredPosition 
-                = new Vector2(mousePos.x - screenWidth*0.5f, mousePos.y - screenHeight*0.5f);
+            position_Widget = new Vector2(mousePos.x - screenWidth*0.5f, mousePos.y - screenHeight*0.5f);
+            Save_position(position_Widget);
+            puddinget_RectTransform.anchoredPosition = position_Widget;
         }
-
-        /*
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            toggle = !toggle;
- 
-            BringWindowToTop(hWnd);
-            SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
-            
-            if (toggle)
-            {
-                SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
-            }
-            else
-            {
-                SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSTPARENT);
-            }
-        }
-        */
     }
 
-    public void Onclick_Start()
+#region 이미지 위치 조절 저장 및 로드
+    public void Save_position(Vector2 nowPos)
+    {
+        PlayerPrefs.SetFloat("pos_x", nowPos.x);
+        PlayerPrefs.SetFloat("pos_y", nowPos.y);
+    }
+
+    // 앱이 켜질 때 한 번만 실행됨
+    public void Load_position()
+    {
+        Vector2 lastPos = Vector2.zero;
+        float pos_x =  PlayerPrefs.GetFloat("pos_x");
+        float pos_y =  PlayerPrefs.GetFloat("pos_y");
+        if (pos_x != 0f && pos_y != 0f && pos_x != null && pos_y != null)
+        {
+            lastPos = new Vector2(pos_x, pos_y);
+        }
+        puddinget_RectTransform.anchoredPosition = lastPos;
+    }
+#endregion
+
+    public void Onclick_Home()
     {
         SetState(appState.Processing);
     }
@@ -293,6 +321,9 @@ public class Puddinget_Manager : MonoBehaviour
         PlayerPrefs.SetInt("customIMGUsed", 0);
         isCustomImageUsed = PlayerPrefs.GetInt("customIMGUsed");
         Resizing_Reset();
+        Select_Animation(0);
+        PlayerPrefs.DeleteAll();
+        Load_position();
     }
 
     public void LoadIMGFileInfo()
@@ -334,12 +365,17 @@ public class Puddinget_Manager : MonoBehaviour
         switch (state)
         {
             case appState.Menu:
+                isSetting = true;
                 panel_menu.SetActive(true);
                 panel_process.SetActive(true);
+                button_locker.SetActive(true);
                 break;
             case appState.Processing:
+                isSetting = false;
+                positionLock = true;
                 panel_menu.SetActive(false);
                 panel_process.SetActive(true);
+                button_locker.SetActive(false);
                 break;
             case appState.Error:
 #if UNITY_EDITOR
@@ -419,24 +455,34 @@ public class Puddinget_Manager : MonoBehaviour
 #endregion
 
 #region 이미지 애니메이션 설정
-    public void Select_Animation(animation_List index)
+    public void Select_Animation(int index)
     {
         switch (index)
         {
-            case (animation_List)0:
+            case 0:
+                nowAnimation = 0;
                 break;
-            case (animation_List)1:
+            case 1:
+                nowAnimation = 1;
                 break;
-            case (animation_List)2:
+            case 2:
+                nowAnimation = 2;
+                break;
+            case 3:
+                nowAnimation = 3;
                 break;
             default:
+                nowAnimation = 0;
                 break;
         }
+        Debug.Log(nowAnimation + "번 애니메이션 재생");
+        Save_Animation(nowAnimation);
+        Animator_Pudding.SetInteger("Index", nowAnimation);
     }
 
-    public void Save_Animation()
+    public void Save_Animation(int nowNum)
     {
-        PlayerPrefs.SetInt("animation", nowAnimation);
+        PlayerPrefs.SetInt("animation", nowNum);
     }
 
     public void Load_Animation()
@@ -451,7 +497,7 @@ public class Puddinget_Manager : MonoBehaviour
             animation = 0;
         }
 
-        Select_Animation((animation_List)animation);
+        Select_Animation(animation);
     }
 #endregion
 
