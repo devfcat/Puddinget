@@ -124,8 +124,12 @@ public class Splash_Manager : MonoBehaviour
                 strUpKey = Registry.LocalMachine.OpenSubKey(runKey, true);
                 // 시작프로그램 등록명과 exe경로를 레지스트리에 등록
                 strUpKey.SetValue("Puddinget", System.Windows.Forms.Application.ExecutablePath);
+                MessageBox.Show("시작프로그램에 푸딩젯을 등록했습니다." + "\n" + "(시작 시 실행을 취소하고 싶다면 작업관리자에서 삭제)");
             }
-            MessageBox.Show("시작프로그램에 푸딩젯을 등록했습니다." + "\n" + "(시작 시 실행을 취소하고 싶다면 작업관리자에서 삭제)");
+            else
+            {
+                // 이미 시작프로그램에 등록됨
+            }
         }
         catch
         {
