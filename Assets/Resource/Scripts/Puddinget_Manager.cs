@@ -41,7 +41,6 @@ public class Puddinget_Manager : MonoBehaviour
         BringWindowToTop(hWnd);
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
         SetWindowLong(hWnd, GWL_EXSTYLE, WS_EX_LAYERED);
-        Init();
     }
 
     public struct MARGINS
@@ -96,6 +95,8 @@ public class Puddinget_Manager : MonoBehaviour
  
         BringWindowToTop(hWnd);
         SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE);
+
+        Init();
     }
 
 #region 구동에 필요한 변수들
@@ -218,6 +219,7 @@ public class Puddinget_Manager : MonoBehaviour
     {
         PlayerPrefs.SetFloat("pos_x", nowPos.x);
         PlayerPrefs.SetFloat("pos_y", nowPos.y);
+        PlayerPrefs.Save();
     }
 
     // 앱이 켜질 때 한 번만 실행됨
@@ -226,10 +228,7 @@ public class Puddinget_Manager : MonoBehaviour
         Vector2 lastPos = Vector2.zero;
         float pos_x =  PlayerPrefs.GetFloat("pos_x");
         float pos_y =  PlayerPrefs.GetFloat("pos_y");
-        if (pos_x != 0f && pos_y != 0f && pos_x != null && pos_y != null)
-        {
-            lastPos = new Vector2(pos_x, pos_y);
-        }
+        lastPos = new Vector2(pos_x, pos_y);
         puddinget_RectTransform.anchoredPosition = lastPos;
     }
 #endregion
@@ -292,7 +291,7 @@ public class Puddinget_Manager : MonoBehaviour
     {
         if (isCustomImageUsed != 1)
         {
-            SetIMG_default();
+            SetIMG_main();
         }
         else
         {
@@ -324,6 +323,13 @@ public class Puddinget_Manager : MonoBehaviour
         Select_Animation(0);
         PlayerPrefs.DeleteAll();
         Load_position();
+    }
+
+    public void SetIMG_main()
+    {
+        puddinget_IMG.sprite = default_IMG;
+        PlayerPrefs.SetInt("customIMGUsed", 0);
+        isCustomImageUsed = PlayerPrefs.GetInt("customIMGUsed");
     }
 
     public void LoadIMGFileInfo()
@@ -537,7 +543,7 @@ public class Puddinget_Manager : MonoBehaviour
         SetState(appState.Menu);
     }
 
-    void Exit_Program()
+    public void Exit_Program()
     {
         UnityEngine.Application.Quit();
     }
