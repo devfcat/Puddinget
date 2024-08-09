@@ -31,12 +31,23 @@ public class ThemeSwitcher : MonoBehaviour
     [Header("State")]
     public ThemeMod themeMod;
 
-    public void Start()
+    private static ThemeSwitcher _instance;
+    public static ThemeSwitcher Instance
     {
-        this.Init();
+        get
+        {
+            if (!_instance)
+            {
+                _instance = FindObjectOfType(typeof(ThemeSwitcher)) as ThemeSwitcher;
+
+                if (_instance == null)
+                    Debug.Log("no Singleton obj");
+            }
+            return _instance;
+        }
     }
 
-    public void Init()
+    public void Awake()
     {
         themeMod = Load_ThemeMod();
         Switing_Theme(themeMod);

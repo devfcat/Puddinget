@@ -558,6 +558,7 @@ public class Puddinget_Manager : MonoBehaviour
             // 자물쇠 열림 스프라이트 활성화
             Debug.Log("Position UnLock");
         }
+        Locker.Instance.Change_Sprite(ThemeSwitcher.Instance.themeMod);
     }
 
     public void Onclick_MainMenu()
