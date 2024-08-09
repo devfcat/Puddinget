@@ -9,15 +9,48 @@ public class Locker : MonoBehaviour
     public Image thisIMG;
     public Sprite locking;
     public Sprite unLocking;
-    void Update()
+    public Sprite locking_dark;
+    public Sprite unLocking_dark;
+
+    private static Locker _instance;
+    public static Locker Instance
     {
-        if (mainManager.positionLock)
+        get
         {
-            thisIMG.sprite = locking;
+            if (!_instance)
+            {
+                _instance = FindObjectOfType(typeof(Locker)) as Locker;
+
+                if (_instance == null)
+                    Debug.Log("no Singleton obj");
+            }
+            return _instance;
+        }
+    }
+
+    public void Change_Sprite(ThemeMod mod)
+    {
+        if (mod == ThemeMod.Light)
+        {
+            if (mainManager.positionLock)
+            {
+                thisIMG.sprite = locking;
+            }
+            else
+            {
+                thisIMG.sprite = unLocking;
+            }
         }
         else
         {
-            thisIMG.sprite = unLocking;
+            if (mainManager.positionLock)
+            {
+                thisIMG.sprite = locking_dark;
+            }
+            else
+            {
+                thisIMG.sprite = unLocking_dark;
+            }
         }
     }
 }
