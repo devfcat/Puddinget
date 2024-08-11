@@ -137,6 +137,7 @@ public class Puddinget_Manager : MonoBehaviour
     public GameObject panel_menu; // 메뉴 화면
     public GameObject panel_process; // 기본 화면
     public GameObject button_locker; // 자물쇠 버튼
+    public GameObject popup_TrialNotice; // 체험판 이용 시 프리미엄 기능을 누르면 나오는 메세지
 
     [Header("기타")]
     public RectTransform screen_UI;
@@ -238,20 +239,31 @@ public class Puddinget_Manager : MonoBehaviour
         SetState(appState.Processing);
     }
 
+    /// <summary>
+    /// 프리미엄 사용자만 이용 가능한 기능 - 커스텀 이미지 임포트
+    /// </summary>
 #region 이미지 불러오기
 
     public void Onclick_ImportIMG()
     {
-        OpenDialog = new OpenFileDialog();
-        OpenDialog.Filter = "Custom Image (*.jpg, *.png, *.gif) | *.jpg; *.png; *.gif; | All files  (*.*)|*.*";
-        OpenDialog.FilterIndex = 1;
-        OpenDialog.Title = "Image Dialog";
-
-        url_IMG = FileOpen();
-        if (!string.IsNullOrEmpty(url_IMG))
+        if (TrialManager.Instance.type == TrialManager.SoftewareType.Trial)
         {
-            SaveIMGFile();
-            SetIMG();
+            // popup_TrialNotice.SetActive(true);
+            return;
+        }
+        else
+        {
+            OpenDialog = new OpenFileDialog();
+            OpenDialog.Filter = "Custom Image (*.jpg, *.png) | *.jpg; *.png; | All files  (*.*)|*.*";
+            OpenDialog.FilterIndex = 1;
+            OpenDialog.Title = "Image Import";
+
+            url_IMG = FileOpen();
+            if (!string.IsNullOrEmpty(url_IMG))
+            {
+                SaveIMGFile();
+                SetIMG();
+            }
         }
     }
 
@@ -417,11 +429,22 @@ public class Puddinget_Manager : MonoBehaviour
         sizeSlider.maxValue = maxSize;
     }
 
+    /// <summary>
+    /// 프리미엄 사용자만 이용 가능한 기능 - 이미지 리사이징
+    /// </summary>
     public void Resizing()
     {
-        nowSize = sizeSlider.value;
-        puddinget_MainRectTransform.localScale = new Vector2(sizeSlider.value, sizeSlider.value);
-        Save_scale();
+        if (TrialManager.Instance.type == TrialManager.SoftewareType.Trial)
+        {
+            // popup_TrialNotice.SetActive(true);
+            return;
+        }
+        else
+        {
+            nowSize = sizeSlider.value;
+            puddinget_MainRectTransform.localScale = new Vector2(sizeSlider.value, sizeSlider.value);
+            Save_scale();
+        }
     }
 
     public void Resizing_Reset()
@@ -535,6 +558,7 @@ public class Puddinget_Manager : MonoBehaviour
             // 자물쇠 열림 스프라이트 활성화
             Debug.Log("Position UnLock");
         }
+        Locker.Instance.Change_Sprite(ThemeSwitcher.Instance.themeMod);
     }
 
     public void Onclick_MainMenu()

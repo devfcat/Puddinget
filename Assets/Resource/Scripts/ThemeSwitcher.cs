@@ -25,18 +25,29 @@ public class ThemeSwitcher : MonoBehaviour
     public List<GameObject> text_UI_Dark; // 텍스트 오브젝트 (다크)
 
     [Header("Sprites")]
-    public List<Sprite> sprites_UI_Dark;
-    public List<Sprite> sprites_UI_Light;
+    public List<Sprite> sprites_UI_A; // 검정 UI
+    public List<Sprite> sprites_UI_B; // 하양 UI
 
     [Header("State")]
     public ThemeMod themeMod;
 
-    public void Start()
+    private static ThemeSwitcher _instance;
+    public static ThemeSwitcher Instance
     {
-        this.Init();
+        get
+        {
+            if (!_instance)
+            {
+                _instance = FindObjectOfType(typeof(ThemeSwitcher)) as ThemeSwitcher;
+
+                if (_instance == null)
+                    Debug.Log("no Singleton obj");
+            }
+            return _instance;
+        }
     }
 
-    public void Init()
+    public void Awake()
     {
         themeMod = Load_ThemeMod();
         Switing_Theme(themeMod);
@@ -70,20 +81,23 @@ public class ThemeSwitcher : MonoBehaviour
     public void Switing_Theme(ThemeMod mod)
     {
         themeMod = mod;
-        for (int i = 0; images_UI.Count < i; i++)
+
+        Locker.Instance.Change_Sprite(themeMod);
+
+        for (int i = 0; images_UI.Count > i; i++)
         {
             if (themeMod == ThemeMod.Light)
             {
                 Save_ThemeMod(0);
-                images_UI[i].sprite = sprites_UI_Light[i];
+                images_UI[i].sprite = sprites_UI_A[i];
             }
             else
             {
                 Save_ThemeMod(1);
-                images_UI[i].sprite = sprites_UI_Dark[i];
+                images_UI[i].sprite = sprites_UI_B[i];
             }
         }
-        for (int i = 0; text_UI_Light.Count < i; i++)
+        for (int i = 0; text_UI_Light.Count > i; i++)
         {
             if (themeMod == ThemeMod.Light)
             {
@@ -112,11 +126,11 @@ public class ThemeSwitcher : MonoBehaviour
         int mod = PlayerPrefs.GetInt("themeMod");
         if (mod == 0)
         {
-            return ThemeMod.Light;
+            return ThemeMod.Dark;
         }
         else
         {
-            return ThemeMod.Dark;
+            return ThemeMod.Light;
         }
     }
 

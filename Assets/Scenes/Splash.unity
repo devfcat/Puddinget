@@ -270,9 +270,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1835186657}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -100, y: -41.028748}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 114, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &534243904
@@ -295,7 +295,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ea1a99b7c367fd8418818ed4d0d79940, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e8a8a10c41e72ac40b1283325c7c0003, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -313,6 +313,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534243902}
   m_CullTransparentMesh: 1
+--- !u!1 &653154361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 653154363}
+  - component: {fileID: 653154362}
+  m_Layer: 0
+  m_Name: TrialManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &653154362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 653154361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8da034e76bd79e8498d7e2b7f44cfc8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+--- !u!4 &653154363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 653154361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &746620291
 GameObject:
   m_ObjectHideFlags: 0
@@ -708,7 +753,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1565126172
 RectTransform:
   m_ObjectHideFlags: 0
@@ -727,7 +772,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 130, y: -49.028778}
-  m_SizeDelta: {x: 0, y: 104}
+  m_SizeDelta: {x: 322.97, y: 104}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1565126173
 MonoBehaviour:
@@ -751,8 +796,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PUDDINGET
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b7cabd352cc855d4f9629ab771b06bb1, type: 2}
-  m_sharedMaterial: {fileID: -8781474506330703088, guid: b7cabd352cc855d4f9629ab771b06bb1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -876,7 +921,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -10, y: -45}
-  m_SizeDelta: {x: 0, y: 104}
+  m_SizeDelta: {x: 94.42, y: 104}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1732109701
 MonoBehaviour:
@@ -914,8 +959,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: by Devfcat
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 1a549670ba546054eb6dc7cf254564ec, type: 2}
-  m_sharedMaterial: {fileID: -8781474506330703088, guid: 1a549670ba546054eb6dc7cf254564ec, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1074,4 +1119,5 @@ SceneRoots:
   - {fileID: 812590901}
   - {fileID: 115407679}
   - {fileID: 132957358}
+  - {fileID: 653154363}
   - {fileID: 746620295}
