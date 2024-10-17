@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,8 +9,8 @@ using UnityEngine.UI;
 /// </summary>
 public enum ThemeMod
 {
-    Light = 0,
-    Dark = 1,
+    Light = 1,
+    Dark = 0,
 }
 
 /// <summary>
@@ -25,9 +24,9 @@ public class ThemeSwitcher : MonoBehaviour
     public List<GameObject> text_UI_Dark; // 텍스트 오브젝트 (다크)
 
     [Header("Sprites")]
-    public List<Sprite> sprites_UI_A; // 검정 UI
-    public List<Sprite> sprites_UI_B; // 하양 UI
-
+    public List<Sprite> sprites_UI_A;     
+    public List<Sprite> sprites_UI_B;
+    
     [Header("State")]
     public ThemeMod themeMod;
 
@@ -88,26 +87,28 @@ public class ThemeSwitcher : MonoBehaviour
         {
             if (themeMod == ThemeMod.Light)
             {
-                Save_ThemeMod(0);
-                images_UI[i].sprite = sprites_UI_A[i];
+                Save_ThemeMod(1);
+                images_UI[i].sprite = sprites_UI_B[i];
+                //images_UI[i].sprite = sprites_UI_A[i];
             }
             else
             {
-                Save_ThemeMod(1);
-                images_UI[i].sprite = sprites_UI_B[i];
+                Save_ThemeMod(0);
+                images_UI[i].sprite = sprites_UI_A[i];
+                //images_UI[i].sprite = sprites_UI_B[i];
             }
         }
         for (int i = 0; text_UI_Light.Count > i; i++)
         {
             if (themeMod == ThemeMod.Light)
             {
-                text_UI_Light[i].SetActive(true);
-                text_UI_Dark[i].SetActive(false);
+                text_UI_Light[i].SetActive(false);
+                text_UI_Dark[i].SetActive(true);
             }
             else
             {
-                text_UI_Light[i].SetActive(false);
-                text_UI_Dark[i].SetActive(true);
+                text_UI_Light[i].SetActive(true);
+                text_UI_Dark[i].SetActive(false);
             }
         }
     }
