@@ -135,5 +135,6 @@ public class Splash_Manager : MonoBehaviour
         {
             MessageBox.Show("시작프로그램에 등록하지 못했습니다." + "\n" + "(관리자 권한으로 실행 필요)");
         }
+        
     }
 }
